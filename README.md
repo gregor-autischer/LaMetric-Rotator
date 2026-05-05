@@ -8,7 +8,8 @@ It's the "no-Node-RED" replacement for the typical pattern where users wire up a
 
 - Pick **one LaMetric Time** per integration entry (you can have multiple entries if you have multiple devices).
 - Configure up to **10 items**. Each item has:
-  - an HA **entity** (any sensor, number, input_number, …)
+  - an HA **entity** (any sensor, number, input_number, weather, …)
+  - optional **attribute** — read a state attribute instead of the main state, useful for `weather` entities whose temperature, humidity and wind values live in attributes (see below)
   - a **LaMetric icon** — choose from a curated dropdown (battery levels, sun, lightning, house, EV, thermometer, clock, …) **or** paste any numeric icon ID from <https://developer.lametric.com/icons>
   - optional **icon thresholds** to switch the icon based on the value (see below)
   - optional **prefix** (e.g. `🔋 `)
@@ -17,6 +18,23 @@ It's the "no-Node-RED" replacement for the typical pattern where users wire up a
   - optional **scale factor** (e.g. `0.001` to convert W → kW)
 - Cycle interval: **fixed at 10 seconds** — matches the LaMetric Time's default per-app rotation. With 1 item it's just re-pushed every 10 s; with 10 items the full loop is 100 s.
 - All items live in the integration's options — change them via *Settings → Devices & Services → LaMetric Rotator → Configure* whenever you like; no restart needed.
+
+### Reading weather entities (and other attribute-only data)
+
+Home Assistant's `weather` domain stores numeric values as **attributes** on a single entity (e.g. `weather.forecast_home`) — the entity's main state is just the *condition* (`"partlycloudy"`, `"sunny"`, …). Same goes for some other integrations.
+
+Set the optional **Attribute** field on an item to read one of those attributes instead of the main state. For Met.no / most weather providers:
+
+| Attribute | What it is |
+| :-- | :-- |
+| `temperature` | Current temperature |
+| `humidity` | Relative humidity (%) |
+| `wind_speed` | Wind speed |
+| `wind_bearing` | Wind direction (degrees) |
+| `pressure` | Air pressure |
+| `visibility` | Visibility |
+
+Example: an item with entity `weather.forecast_home`, attribute `temperature`, suffix `°C`, decimals `1`, icon `12090` (thermometer).
 
 ### Icon thresholds
 

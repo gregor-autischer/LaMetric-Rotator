@@ -12,6 +12,7 @@ CYCLE_SECONDS = 10
 CONF_LAMETRIC_ENTRY_ID = "lametric_entry_id"
 CONF_ITEMS = "items"
 CONF_ENTITY_ID = "entity_id"
+CONF_ATTRIBUTE = "attribute"
 CONF_ICON = "icon"
 CONF_ICON_THRESHOLDS = "icon_thresholds"
 CONF_PREFIX = "prefix"

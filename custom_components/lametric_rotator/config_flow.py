@@ -21,6 +21,7 @@ from homeassistant.core import callback
 from homeassistant.helpers import selector
 
 from .const import (
+    CONF_ATTRIBUTE,
     CONF_DECIMALS,
     CONF_ENTITY_ID,
     CONF_ICON,
@@ -68,6 +69,10 @@ def _item_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
     return vol.Schema(
         {
             entity_marker: selector.EntitySelector(),
+            vol.Optional(
+                CONF_ATTRIBUTE,
+                default=defaults.get(CONF_ATTRIBUTE, ""),
+            ): selector.TextSelector(),
             icon_marker: _icon_selector(),
             vol.Optional(
                 CONF_ICON_THRESHOLDS,
@@ -272,6 +277,9 @@ def _clean_item(raw: dict[str, Any]) -> dict[str, Any]:
         CONF_ENTITY_ID: raw[CONF_ENTITY_ID],
         CONF_ICON: str(raw[CONF_ICON]).strip(),
     }
+    attribute = (raw.get(CONF_ATTRIBUTE) or "").strip()
+    if attribute:
+        item[CONF_ATTRIBUTE] = attribute
     thresholds_raw = (raw.get(CONF_ICON_THRESHOLDS) or "").strip()
     if thresholds_raw:
         # Validates eagerly; will raise on bad input.

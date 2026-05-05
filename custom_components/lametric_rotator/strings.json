@@ -28,6 +28,7 @@
         "title": "New rotation item",
         "data": {
           "entity_id": "Entity",
+          "attribute": "Attribute (optional)",
           "icon": "LaMetric icon (default)",
           "icon_thresholds": "Icon thresholds (optional)",
           "prefix": "Prefix (optional)",
@@ -36,6 +37,7 @@
           "scale": "Scale factor (e.g. 0.001 to convert W → kW)"
         },
         "data_description": {
+          "attribute": "Read a state attribute instead of the entity's main state. Useful for weather entities (temperature, humidity, wind_speed, pressure, …) which expose values as attributes. Leave empty to use the main state.",
           "icon": "Pick from the curated list, or paste any numeric icon ID from https://developer.lametric.com/icons.",
           "icon_thresholds": "Switch the icon based on the current value. Format: 'value=icon_id,value=icon_id,…'. Example: '25=2738,50=2739,75=2740,100=2741'. The smallest threshold the value is ≤ wins; if the value is above all thresholds (or non-numeric) the default icon above is used."
         }

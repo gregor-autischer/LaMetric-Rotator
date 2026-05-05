@@ -28,6 +28,7 @@
         "title": "Neuer Rotations-Eintrag",
         "data": {
           "entity_id": "Entität",
+          "attribute": "Attribut (optional)",
           "icon": "LaMetric-Symbol (Standard)",
           "icon_thresholds": "Symbol-Schwellwerte (optional)",
           "prefix": "Präfix (optional)",
@@ -36,6 +37,7 @@
           "scale": "Skalierungsfaktor (z. B. 0.001 für W → kW)"
         },
         "data_description": {
+          "attribute": "Statt des Haupt-States ein State-Attribut auslesen. Praktisch bei Wetter-Entitäten (temperature, humidity, wind_speed, pressure, …), die ihre Werte als Attribute bereitstellen. Leer lassen für den Haupt-State.",
           "icon": "Aus der Liste wählen oder beliebige numerische Icon-ID von https://developer.lametric.com/icons eingeben.",
           "icon_thresholds": "Wechselt das Symbol je nach aktuellem Wert. Format: 'wert=icon_id,wert=icon_id,…'. Beispiel: '25=2738,50=2739,75=2740,100=2741'. Es gewinnt die kleinste Schwelle, die ≥ dem Wert ist; bei Werten über allen Schwellen (oder bei nicht-numerischen Werten) wird das Standard-Symbol verwendet."
         }

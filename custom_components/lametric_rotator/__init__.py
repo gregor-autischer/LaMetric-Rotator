@@ -13,6 +13,7 @@ from homeassistant.helpers.device_registry import async_get as async_get_device_
 from homeassistant.helpers.event import async_track_time_interval
 
 from .const import (
+    CONF_ATTRIBUTE,
     CONF_DECIMALS,
     CONF_ENTITY_ID,
     CONF_ICON,
@@ -138,6 +139,14 @@ class LaMetricRotator:
         if state is None or state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN, None, ""):
             return None
 
+        attribute = item.get(CONF_ATTRIBUTE)
+        if attribute:
+            raw_value = state.attributes.get(attribute)
+            if raw_value in (None, "", STATE_UNAVAILABLE, STATE_UNKNOWN):
+                return None
+        else:
+            raw_value = state.state
+
         prefix = item.get(CONF_PREFIX, "")
         suffix = item.get(CONF_SUFFIX, "")
         decimals = int(item.get(CONF_DECIMALS, 0) or 0)
@@ -145,10 +154,10 @@ class LaMetricRotator:
 
         numeric: float | None = None
         try:
-            numeric = float(state.state) * scale
+            numeric = float(raw_value) * scale
             value_str = f"{numeric:.{decimals}f}"
         except (TypeError, ValueError):
-            value_str = state.state
+            value_str = str(raw_value)
 
         return f"{prefix}{value_str}{suffix}", numeric
 
