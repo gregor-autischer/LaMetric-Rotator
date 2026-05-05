@@ -16,6 +16,7 @@ from .const import (
     CONF_DECIMALS,
     CONF_ENTITY_ID,
     CONF_ICON,
+    CONF_ICON_THRESHOLDS,
     CONF_ITEMS,
     CONF_LAMETRIC_ENTRY_ID,
     CONF_PREFIX,
@@ -23,6 +24,8 @@ from .const import (
     CONF_SUFFIX,
     CYCLE_SECONDS,
     DOMAIN,
+    parse_icon_thresholds,
+    resolve_icon,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -92,9 +95,17 @@ class LaMetricRotator:
             )
             return
 
-        message = self._format_value(item)
-        if message is None:
+        formatted = self._format_value(item)
+        if formatted is None:
             return  # entity unavailable; skip this tick
+        message, numeric_value = formatted
+        try:
+            thresholds = parse_icon_thresholds(item.get(CONF_ICON_THRESHOLDS))
+        except ValueError:
+            thresholds = []
+        icon = resolve_icon(
+            str(item.get(CONF_ICON, "")), thresholds, numeric_value
+        )
 
         try:
             await self.hass.services.async_call(
@@ -103,7 +114,7 @@ class LaMetricRotator:
                 {
                     "device_id": device_id,
                     "message": message,
-                    "icon": str(item.get(CONF_ICON, "")),
+                    "icon": icon,
                     "priority": "info",
                     "icon_type": "none",
                     "cycles": 1,
@@ -113,7 +124,13 @@ class LaMetricRotator:
         except Exception:  # pragma: no cover
             _LOGGER.exception("LaMetric Rotator: failed to send message")
 
-    def _format_value(self, item: dict[str, Any]) -> str | None:
+    def _format_value(
+        self, item: dict[str, Any]
+    ) -> tuple[str, float | None] | None:
+        """Return ``(formatted_message, numeric_value_or_none)`` or ``None``
+        if the entity isn't ready. The numeric value (post-scale) is used by
+        the caller for threshold-based icon resolution.
+        """
         entity_id = item.get(CONF_ENTITY_ID)
         if not entity_id:
             return None
@@ -126,14 +143,14 @@ class LaMetricRotator:
         decimals = int(item.get(CONF_DECIMALS, 0) or 0)
         scale = float(item.get(CONF_SCALE, 1.0) or 1.0)
 
+        numeric: float | None = None
         try:
             numeric = float(state.state) * scale
             value_str = f"{numeric:.{decimals}f}"
         except (TypeError, ValueError):
-            # Non-numeric state (e.g. enum) — display as-is, ignore decimals/scale.
             value_str = state.state
 
-        return f"{prefix}{value_str}{suffix}"
+        return f"{prefix}{value_str}{suffix}", numeric
 
     def _lametric_device_id(self) -> str | None:
         """Resolve the device_id of the linked LaMetric ``ConfigEntry``."""

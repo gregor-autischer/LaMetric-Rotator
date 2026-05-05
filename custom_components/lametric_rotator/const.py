@@ -13,12 +13,63 @@ CONF_LAMETRIC_ENTRY_ID = "lametric_entry_id"
 CONF_ITEMS = "items"
 CONF_ENTITY_ID = "entity_id"
 CONF_ICON = "icon"
+CONF_ICON_THRESHOLDS = "icon_thresholds"
 CONF_PREFIX = "prefix"
 CONF_SUFFIX = "suffix"
 CONF_DECIMALS = "decimals"
 CONF_SCALE = "scale"
 
 MAX_ITEMS = 10
+
+
+def parse_icon_thresholds(raw: str | None) -> list[tuple[float, str]]:
+    """Parse ``"25=2738,50=2739,70=2740,90=2741"`` → ascending ``(threshold, icon_id)``.
+
+    Whitespace around tokens is tolerated. Empty / falsy input returns an
+    empty list. Raises ``ValueError`` for malformed input so the config
+    flow can surface a useful error.
+    """
+    if not raw:
+        return []
+    pairs: list[tuple[float, str]] = []
+    for part in raw.split(","):
+        chunk = part.strip()
+        if not chunk:
+            continue
+        if "=" not in chunk:
+            raise ValueError(
+                f"Threshold rule {chunk!r} is missing '=' "
+                "(use 'value=icon_id' format)"
+            )
+        threshold_str, icon_str = chunk.split("=", 1)
+        threshold_str = threshold_str.strip()
+        icon_str = icon_str.strip()
+        if not threshold_str or not icon_str:
+            raise ValueError(
+                f"Threshold rule {chunk!r} has empty value or icon"
+            )
+        try:
+            threshold = float(threshold_str)
+        except ValueError as err:
+            raise ValueError(
+                f"Threshold {threshold_str!r} is not a number"
+            ) from err
+        pairs.append((threshold, icon_str))
+    pairs.sort(key=lambda p: p[0])
+    return pairs
+
+
+def resolve_icon(
+    fallback_icon: str,
+    threshold_rules: list[tuple[float, str]],
+    numeric_value: float | None,
+) -> str:
+    """Return the matching threshold icon, else the fallback."""
+    if numeric_value is not None and threshold_rules:
+        for threshold, icon in threshold_rules:
+            if numeric_value <= threshold:
+                return icon
+    return fallback_icon
 
 
 @dataclass(frozen=True)

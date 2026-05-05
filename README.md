@@ -10,6 +10,7 @@ It's the "no-Node-RED" replacement for the typical pattern where users wire up a
 - Configure up to **10 items**. Each item has:
   - an HA **entity** (any sensor, number, input_number, …)
   - a **LaMetric icon** — choose from a curated dropdown (battery levels, sun, lightning, house, EV, thermometer, clock, …) **or** paste any numeric icon ID from <https://developer.lametric.com/icons>
+  - optional **icon thresholds** to switch the icon based on the value (see below)
   - optional **prefix** (e.g. `🔋 `)
   - optional **suffix** (e.g. ` W`, ` %`, ` kWh`)
   - optional **decimal places** (0–4)
@@ -17,12 +18,29 @@ It's the "no-Node-RED" replacement for the typical pattern where users wire up a
 - Cycle interval: **fixed at 10 seconds** — matches the LaMetric Time's default per-app rotation. With 1 item it's just re-pushed every 10 s; with 10 items the full loop is 100 s.
 - All items live in the integration's options — change them via *Settings → Devices & Services → LaMetric Rotator → Configure* whenever you like; no restart needed.
 
-## What it does **not** do
+### Icon thresholds
 
-- ❌ No threshold-based icon switching (the "show full battery icon at >75 %, half at >25 %" trick from typical Node-RED flows). Currently each item has one fixed icon. If you want this, vote with thumbs-up on the relevant issue or send a PR.
-- ❌ No custom timing — the cycle is hardcoded to 10 seconds. (The LaMetric hardware decides per-message display time anyway, so making this configurable in HA wouldn't really help.)
-- ❌ No notifications, alerts, priority handling, or interactive elements. The integration only does a one-way fire-and-forget `lametric.message` call per tick.
-- ❌ Doesn't talk to LaMetric directly — it depends on Home Assistant's built-in [LaMetric integration](https://www.home-assistant.io/integrations/lametric/) being set up first. This integration just *uses* it.
+Sometimes you want the icon to follow the value — battery icon goes from empty to full as the percentage rises, "consumer" vs. "exporter" icon flips around zero on a grid sensor, etc.
+
+Each item has an optional **Icon thresholds** field. Format:
+
+```
+value=icon_id,value=icon_id,…
+```
+
+The smallest threshold the value is **≤** wins. If the value is above every threshold (or the entity isn't numeric), the default icon is used.
+
+Example for a `sensor.battery_charge` (percent):
+
+```
+25=2738,50=2739,75=2740,100=2741
+```
+
+- `≤ 25 %` → icon `2738` (almost-empty)
+- `≤ 50 %` → icon `2739`
+- `≤ 75 %` → icon `2740`
+- `≤ 100 %` → icon `2741` (full)
+- otherwise → the default icon you picked above
 
 ## Requirements
 

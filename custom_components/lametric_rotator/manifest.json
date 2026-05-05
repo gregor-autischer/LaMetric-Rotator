@@ -1,7 +1,7 @@
 {
   "domain": "lametric_rotator",
   "name": "LaMetric Rotator",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "codeowners": ["@gregor-autischer"],
   "config_flow": true,
   "dependencies": ["lametric"],

@@ -28,16 +28,21 @@
         "title": "New rotation item",
         "data": {
           "entity_id": "Entity",
-          "icon": "LaMetric icon",
+          "icon": "LaMetric icon (default)",
+          "icon_thresholds": "Icon thresholds (optional)",
           "prefix": "Prefix (optional)",
           "suffix": "Suffix (optional, e.g. ' W' or ' %')",
           "decimals": "Decimal places",
           "scale": "Scale factor (e.g. 0.001 to convert W → kW)"
         },
         "data_description": {
-          "icon": "Pick from the curated list, or paste any numeric icon ID from https://developer.lametric.com/icons."
+          "icon": "Pick from the curated list, or paste any numeric icon ID from https://developer.lametric.com/icons.",
+          "icon_thresholds": "Switch the icon based on the current value. Format: 'value=icon_id,value=icon_id,…'. Example: '25=2738,50=2739,75=2740,100=2741'. The smallest threshold the value is ≤ wins; if the value is above all thresholds (or non-numeric) the default icon above is used."
         }
       }
+    },
+    "error": {
+      "bad_thresholds": "Threshold rules must look like 'value=icon_id,value=icon_id,…' — e.g. '25=2738,50=2739'."
     }
   }
 }

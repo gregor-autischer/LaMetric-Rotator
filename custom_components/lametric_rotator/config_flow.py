@@ -24,6 +24,7 @@ from .const import (
     CONF_DECIMALS,
     CONF_ENTITY_ID,
     CONF_ICON,
+    CONF_ICON_THRESHOLDS,
     CONF_ITEMS,
     CONF_LAMETRIC_ENTRY_ID,
     CONF_PREFIX,
@@ -32,6 +33,7 @@ from .const import (
     DOMAIN,
     ICON_CATALOG,
     MAX_ITEMS,
+    parse_icon_thresholds,
 )
 
 
@@ -67,6 +69,10 @@ def _item_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
         {
             entity_marker: selector.EntitySelector(),
             icon_marker: _icon_selector(),
+            vol.Optional(
+                CONF_ICON_THRESHOLDS,
+                default=defaults.get(CONF_ICON_THRESHOLDS, ""),
+            ): selector.TextSelector(),
             vol.Optional(
                 CONF_PREFIX,
                 default=defaults.get(CONF_PREFIX, ""),
@@ -195,12 +201,19 @@ class LaMetricRotatorOptionsFlow(OptionsFlow):
     async def async_step_add_item(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
+        errors: dict[str, str] = {}
         if user_input is not None:
-            self._items.append(_clean_item(user_input))
-            return await self.async_step_menu()
+            try:
+                cleaned = _clean_item(user_input)
+            except ValueError:
+                errors[CONF_ICON_THRESHOLDS] = "bad_thresholds"
+            else:
+                self._items.append(cleaned)
+                return await self.async_step_menu()
         return self.async_show_form(
             step_id="add_item",
-            data_schema=_item_schema(),
+            data_schema=_item_schema(user_input or {}),
+            errors=errors,
         )
 
     # Edit/delete steps are dispatched dynamically from the menu options.
@@ -211,20 +224,28 @@ class LaMetricRotatorOptionsFlow(OptionsFlow):
     ) -> ConfigFlowResult:
         if idx >= len(self._items):
             return await self.async_step_menu()
+
+        errors: dict[str, str] = {}
         if user_input is not None:
             if user_input.get("_delete"):
                 del self._items[idx]
+                return await self.async_step_menu()
+            try:
+                cleaned = _clean_item(user_input)
+            except ValueError:
+                errors[CONF_ICON_THRESHOLDS] = "bad_thresholds"
             else:
-                self._items[idx] = _clean_item(user_input)
-            return await self.async_step_menu()
+                self._items[idx] = cleaned
+                return await self.async_step_menu()
 
-        defaults = {**self._items[idx]}
+        defaults = {**(user_input or self._items[idx])}
         schema = _item_schema(defaults).extend(
             {vol.Optional("_delete", default=False): selector.BooleanSelector()}
         )
         return self.async_show_form(
             step_id=f"edit_{idx}",
             data_schema=schema,
+            errors=errors,
         )
 
     def __getattr__(self, name: str):  # type: ignore[override]
@@ -242,11 +263,20 @@ class LaMetricRotatorOptionsFlow(OptionsFlow):
 
 
 def _clean_item(raw: dict[str, Any]) -> dict[str, Any]:
-    """Strip empty optional fields and coerce types."""
+    """Strip empty optional fields and coerce types.
+
+    Raises ``ValueError`` if the threshold rule input is malformed so the
+    config flow can highlight the offending field.
+    """
     item = {
         CONF_ENTITY_ID: raw[CONF_ENTITY_ID],
         CONF_ICON: str(raw[CONF_ICON]).strip(),
     }
+    thresholds_raw = (raw.get(CONF_ICON_THRESHOLDS) or "").strip()
+    if thresholds_raw:
+        # Validates eagerly; will raise on bad input.
+        parse_icon_thresholds(thresholds_raw)
+        item[CONF_ICON_THRESHOLDS] = thresholds_raw
     for key in (CONF_PREFIX, CONF_SUFFIX):
         value = (raw.get(key) or "").strip()
         if value:
