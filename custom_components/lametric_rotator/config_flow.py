@@ -179,15 +179,16 @@ class LaMetricRotatorOptionsFlow(OptionsFlow):
     async def async_step_menu(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
+        labels = _menu_labels(self.hass.config.language or "")
         menu: dict[str, str] = {}
         if len(self._items) < MAX_ITEMS:
-            menu["add_item"] = "➕ Add new item"
+            menu["add_item"] = labels["add_item"]
         for idx, item in enumerate(self._items):
             menu[f"edit_{idx}"] = (
-                f"✏️ {idx + 1}. {item.get(CONF_ENTITY_ID, '?')} "
-                f"(icon {item.get(CONF_ICON, '?')})"
+                f"{idx + 1}. {item.get(CONF_ENTITY_ID, '?')} "
+                f"({labels['icon']} {item.get(CONF_ICON, '?')})"
             )
-        menu["save"] = "💾 Save and exit"
+        menu["save"] = labels["save"]
         return self.async_show_menu(
             step_id="menu",
             menu_options=menu,
@@ -265,6 +266,27 @@ class LaMetricRotatorOptionsFlow(OptionsFlow):
 
             return _step
         raise AttributeError(name)
+
+
+# Menu labels per UI language. Built into the integration because
+# ``async_show_menu`` with a dict of {step_id: label} bypasses the
+# translation system — the labels are rendered as-is.
+_MENU_LABELS: dict[str, dict[str, str]] = {
+    "de": {
+        "add_item": "Eintrag hinzufügen",
+        "save": "Speichern und schließen",
+        "icon": "Symbol",
+    },
+    "en": {
+        "add_item": "Add item",
+        "save": "Save and exit",
+        "icon": "icon",
+    },
+}
+
+
+def _menu_labels(language: str) -> dict[str, str]:
+    return _MENU_LABELS.get(language.split("-")[0].lower(), _MENU_LABELS["en"])
 
 
 def _clean_item(raw: dict[str, Any]) -> dict[str, Any]:
