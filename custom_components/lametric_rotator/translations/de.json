@@ -1,0 +1,43 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "LaMetric Rotator",
+        "description": "Wähle die LaMetric Time, an die rotierende Nachrichten gesendet werden sollen. Die anzuzeigenden Werte fügst du nach dem Anlegen über *Konfigurieren* hinzu.",
+        "data": {
+          "lametric_entry_id": "LaMetric-Gerät"
+        }
+      }
+    },
+    "abort": {
+      "no_lametric": "Es ist noch keine LaMetric-Integration eingerichtet. Bitte zuerst die eingebaute LaMetric-Integration konfigurieren.",
+      "already_configured": "Für diese LaMetric ist bereits ein Rotator angelegt."
+    }
+  },
+  "options": {
+    "step": {
+      "menu": {
+        "title": "Rotations-Einträge",
+        "description": "Rotiert alle 10 Sekunden durch die Liste. Maximal 10 Einträge.\n\n{summary}",
+        "menu_options": {
+          "add_item": "Neuen Eintrag hinzufügen",
+          "save": "Speichern und schließen"
+        }
+      },
+      "add_item": {
+        "title": "Neuer Rotations-Eintrag",
+        "data": {
+          "entity_id": "Entität",
+          "icon": "LaMetric-Symbol",
+          "prefix": "Präfix (optional)",
+          "suffix": "Suffix (optional, z. B. ' W' oder ' %')",
+          "decimals": "Nachkommastellen",
+          "scale": "Skalierungsfaktor (z. B. 0.001 für W → kW)"
+        },
+        "data_description": {
+          "icon": "Aus der Liste wählen oder beliebige numerische Icon-ID von https://developer.lametric.com/icons eingeben."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "domain": "lametric_rotator",
+  "name": "LaMetric Rotator",
+  "version": "0.1.0",
+  "codeowners": ["@gregor-autischer"],
+  "config_flow": true,
+  "dependencies": ["lametric"],
+  "documentation": "https://github.com/gregor-autischer/LaMetric-Rotator",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "requirements": []
+}

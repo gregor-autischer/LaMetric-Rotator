@@ -1,0 +1,43 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "LaMetric Rotator",
+        "description": "Pick the LaMetric Time you want to send rotating messages to. Add the items to display via the integration's *Configure* button after setup.",
+        "data": {
+          "lametric_entry_id": "LaMetric device"
+        }
+      }
+    },
+    "abort": {
+      "no_lametric": "No LaMetric integration is configured yet. Set up the built-in LaMetric integration first.",
+      "already_configured": "This LaMetric device already has a Rotator configured."
+    }
+  },
+  "options": {
+    "step": {
+      "menu": {
+        "title": "Rotation items",
+        "description": "Cycles every 10 seconds through the list below. Maximum 10 items.\n\n{summary}",
+        "menu_options": {
+          "add_item": "Add new item",
+          "save": "Save and exit"
+        }
+      },
+      "add_item": {
+        "title": "New rotation item",
+        "data": {
+          "entity_id": "Entity",
+          "icon": "LaMetric icon",
+          "prefix": "Prefix (optional)",
+          "suffix": "Suffix (optional, e.g. ' W' or ' %')",
+          "decimals": "Decimal places",
+          "scale": "Scale factor (e.g. 0.001 to convert W → kW)"
+        },
+        "data_description": {
+          "icon": "Pick from the curated list, or paste any numeric icon ID from https://developer.lametric.com/icons."
+        }
+      }
+    }
+  }
+}
